@@ -11,8 +11,9 @@ bot = telebot.TeleBot(BOT_TOKEN)
 # 2. معرف قناتك الإلزامية
 CHANNEL_ID = "@TeamBacDZ"
 
-# رابط الصورة الرسمية الجديدة لـ Team BAC Gestion
-WELCOME_IMAGE_URL = "https://raw.githubusercontent.com/noblrabah33-bot/bac-gestion-tjrba_bot/main/image_20.png"
+# رابط الصورة الرسمية الجديدة لـ Team BAC Gestion (رابط مباشر)
+# ملاحظة: تأكد من أن هذا الرابط هو رابط مباشر للصورة نفسها، ليس لصفحة تحتوي على الصورة.
+WELCOME_IMAGE_URL = "https://raw.githubusercontent.com/noblrabah33-bot/bac-gestion-tjrba_bot/main/image_18.png"
 
 app = Flask('')
 
@@ -73,6 +74,7 @@ def handle_all_messages(message):
         bot.send_photo(message.chat.id, WELCOME_IMAGE_URL, caption=caption_text, reply_markup=markup)
     except Exception as e:
         # حل احتياطي في حال تأخر السيرفر في جلب الصورة
+        print(f"Error sending photo: {e}")
         bot.send_message(message.chat.id, caption_text, reply_markup=markup)
 
 def keep_alive():

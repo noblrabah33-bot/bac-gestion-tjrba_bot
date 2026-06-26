@@ -11,8 +11,8 @@ bot = telebot.TeleBot(BOT_TOKEN)
 # 2. معرف قناتك الإلزامية
 CHANNEL_ID = "@TeamBacDZ"
 
-# رابط الصورة التي ستظهر مع الرسالة (يمكنك استبدال هذا الرابط برابط صورتك مستقبلاً)
-WELCOME_IMAGE_URL = "https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=600&auto=format&fit=crop"
+# رابط الصورة الرسمية الجديدة لـ Team BAC Gestion
+WELCOME_IMAGE_URL = "https://raw.githubusercontent.com/noblrabah33-bot/bac-gestion-tjrba_bot/main/image_20.png"
 
 app = Flask('')
 
@@ -53,29 +53,26 @@ def handle_all_messages(message):
         )
         return
 
-    # ثانياً: إذا كان مشتركاً، تظهر له القائمة الخاصة بك بالصورة والأزرار في كل مرة
+    # ثانياً: القائمة الخاصة بك بالصورة الرسمية الجديدة والأزرار
+    markup = types.InlineKeyboardMarkup(row_width=1)
     
-    # إنشاء أزرار القائمة المخصصة مع الإيموجي الملون بديل الألوان
-    markup = types.InlineKeyboardMarkup(row_width=1) # لجعل كل زر في سطر منفصل ومنظم
-    
-    # يمكنك تعديل الروابط (url) أدناه لتوجيه المستخدم لروابط تطبيقك ومجموعاتك الحقيقية
     btn_app = types.InlineKeyboardButton("🟢 ادخل للتطبيق", url="https://t.me/TeamBacDZ")
     btn_share = types.InlineKeyboardButton("🔵 شارك التطبيق مع زملائك", url="https://t.me/share/url?url=https://t.me/TeamBacDZ")
     btn_group = types.InlineKeyboardButton("🟡 انضم لمجموعة المناقشة", url="https://t.me/TeamBacDZ")
-    btn_admin = types.InlineKeyboardButton("🔴 تواصل مع المشرف", url="https://t.me/noblrabah33") # ضع معرف حسابك هنا مكان noblrabah33
+    btn_admin = types.InlineKeyboardButton("🔴 تواصل مع المشرف", url="https://t.me/noblrabah33")
     
     markup.add(btn_app, btn_share, btn_group, btn_admin)
     
     caption_text = (
-        "✨ أهلاً بك في خدماتنا المتطورة! ✨\n\n"
+        "✨ أهلاً بك في منصة Team BAC Gestion المطور! ✨\n\n"
         "يسعدنا تواجدك معنا، يرجى اختيار الخدمة التي تريدها من الأزرار أدناه للبدء فوراً:"
     )
     
     try:
-        # إرسال الصورة ومعها النص والأزرار الشفافة تحته
+        # إرسال الصورة الرسمية الجديدة ومعها النص والأزرار الشفافة تحته
         bot.send_photo(message.chat.id, WELCOME_IMAGE_URL, caption=caption_text, reply_markup=markup)
     except Exception as e:
-        # حل احتياطي في حال فشل تحميل رابط الصورة، يرسل نصاً فقط لكي لا يتوقف البوت
+        # حل احتياطي في حال تأخر السيرفر في جلب الصورة
         bot.send_message(message.chat.id, caption_text, reply_markup=markup)
 
 def keep_alive():

@@ -4,15 +4,13 @@ from flask import Flask
 import telebot
 from telebot import types
 
-# 1. إعداد البوت بالتوكن الخاص بك
 BOT_TOKEN = "8985389453:AAFMC94DtQks9GPXcwLPtm_beOBnYwpJle4"
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# 2. معرف قناتك الإلزامية
 CHANNEL_ID = "@TeamBacDZ"
 
-# الرابط المباشر الجديد والمضمون لصورتك الاحترافية (Team BAC Gestion)
-WELCOME_IMAGE_URL = "https://i.ibb.co/6R9SgY4b/team-bac-gestion.jpg"
+# يمكنك استبدال هذا الرابط لاحقاً بـ file_id عندما يعطيه لك البوت
+WELCOME_IMAGE_URL = "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?q=80&w=600&auto=format&fit=crop"
 
 app = Flask('')
 
@@ -24,43 +22,38 @@ def run():
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
 
-# دالة التحقق من اشتراك المستخدم
 def is_user_subscribed(chat_id, user_id):
     try:
         member = bot.get_chat_member(chat_id, user_id)
-        if member.status in ['member', 'administrator', 'creator']:
-            return True
-        return False
+        return member.status in ['member', 'administrator', 'creator']
     except Exception as e:
         print(f"Error checking subscription: {e}")
         return True
 
-# استقبال كل الرسائل
+# ميزة ذكية: إذا أرسلت صورة للبوت، سيعطيك الـ file_id الخاص بها فوراً
+@bot.message_handler(content_types=['photo'])
+def handle_photo(message):
+    # نأخذ أعلى جودة للصورة المرسلة
+    file_id = message.photo[-1].file_id
+    bot.reply_to(message, f"🎯 ممتاز يا نبيل! هذا هو الرمز السري لصورتك، انسخه كاملاً وضعه في الكود:\n\n`{file_id}`")
+
+# استقبال الرسائل النصية المعتادة
 @bot.message_handler(func=lambda message: True)
 def handle_all_messages(message):
     user_id = message.from_user.id
     
-    # أولاً: التحقق من الاشتراك الإلزامي
     if not is_user_subscribed(CHANNEL_ID, user_id):
         markup = types.InlineKeyboardMarkup()
         btn = types.InlineKeyboardButton("اضغط هنا للاشتراك في القناة 📢", url=f"https://t.me/TeamBacDZ")
         markup.add(btn)
-        
-        bot.reply_to(
-            message, 
-            "⚠️ عذراً يا صديقي! يجب عليك الاشتراك في القناة أولاً لاستخدام البوت المطور.\n\nاشترك ثم أعد إرسال /start", 
-            reply_markup=markup
-        )
+        bot.reply_to(message, "⚠️ عذراً يا صديقي! يجب عليك الاشتراك في القناة أولاً لاستخدام البوت المطور.\n\nاشترك ثم أعد إرسال /start", reply_markup=markup)
         return
 
-    # ثانياً: القائمة بالأزرار والصورة الرسمية الخاصة بك
     markup = types.InlineKeyboardMarkup(row_width=1)
-    
     btn_app = types.InlineKeyboardButton("🟢 ادخل للتطبيق", url="https://t.me/TeamBacDZ")
     btn_share = types.InlineKeyboardButton("🔵 شارك التطبيق مع زملائك", url="https://t.me/share/url?url=https://t.me/TeamBacDZ")
     btn_group = types.InlineKeyboardButton("🟡 انضم لمجموعة المناقشة", url="https://t.me/TeamBacDZ")
     btn_admin = types.InlineKeyboardButton("🔴 تواصل مع المشرف", url="https://t.me/noblrabah33")
-    
     markup.add(btn_app, btn_share, btn_group, btn_admin)
     
     caption_text = (
@@ -69,7 +62,6 @@ def handle_all_messages(message):
     )
     
     try:
-        # إرسال صورتك الرسمية بدقة عالية وسرعة فائقة
         bot.send_photo(message.chat.id, WELCOME_IMAGE_URL, caption=caption_text, reply_markup=markup)
     except Exception as e:
         print(f"Error sending photo: {e}")

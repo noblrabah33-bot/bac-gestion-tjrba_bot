@@ -33,25 +33,8 @@ def is_user_subscribed(chat_id, user_id):
         print(f"Error checking subscription: {e}")
         return True
 
-# استقبال كل الرسائل النصية
-@bot.message_handler(func=lambda message: True)
-def handle_all_messages(message):
-    user_id = message.from_user.id
-    
-    # أولاً: التحقق من الاشتراك الإلزامي
-    if not is_user_subscribed(CHANNEL_ID, user_id):
-        markup = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton("اضغط هنا للاشتراك في القناة 📢", url=f"https://t.me/TeamBacDZ")
-        markup.add(btn)
-        
-        bot.reply_to(
-            message, 
-            "⚠️ عذراً يا صديقي! يجب عليك الاشتراك في القناة أولاً لاستخدام البوت المطور.\n\nاشترك ثم أعد إرسال /start", 
-            reply_markup=markup
-        )
-        return
-
-    # ثانياً: القائمة بالأزرار والصورة الرسمية الخاصة بك (باستخدام الـ file_id المضمون)
+# دالة لإرسال القائمة الرئيسية مع صورتك الاحترافية
+def send_main_menu(chat_id):
     markup = types.InlineKeyboardMarkup(row_width=1)
     
     btn_app = types.InlineKeyboardButton("🟢 ادخل للتطبيق", url="https://t.me/TeamBacDZ")
@@ -67,11 +50,51 @@ def handle_all_messages(message):
     )
     
     try:
-        # إرسال الصورة الرسمية باستخدام الـ ID لسرعة وظهور مضمون 100%
-        bot.send_photo(message.chat.id, WELCOME_IMAGE_ID, caption=caption_text, reply_markup=markup)
+        bot.send_photo(chat_id, WELCOME_IMAGE_ID, caption=caption_text, reply_markup=markup)
     except Exception as e:
         print(f"Error sending photo: {e}")
-        bot.send_message(message.chat.id, caption_text, reply_markup=markup)
+        bot.send_message(chat_id, caption_text, reply_markup=markup)
+
+# معالج الضغط على الأزرار الشفافة (التفاعل مع زر التحقق)
+@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
+def check_subscription_callback(call):
+    user_id = call.from_user.id
+    chat_id = call.message.chat.id
+    
+    if is_user_subscribed(CHANNEL_ID, user_id):
+        # حذف رسالة الاشتراك القديمة لإبقاء المحادثة نظيفة
+        try:
+            bot.delete_message(chat_id, call.message.message_id)
+        except:
+            pass
+        # إرسال القائمة الرئيسية فوراً
+        send_main_menu(chat_id)
+    else:
+        # إظهار تنبيه داخلي للمستخدم بأنه لم يشترك بعد
+        bot.answer_callback_query(call.id, "❌ لم تشترك في القناة بعد! يرجى الاشتراك أولاً ثم الضغط على الزر مجدداً.", show_alert=True)
+
+# استقبال كل الرسائل النصية المعتادة
+@bot.message_handler(func=lambda message: True)
+def handle_all_messages(message):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    
+    # التحقق من الاشتراك الإلزامي
+    if not is_user_subscribed(CHANNEL_ID, user_id):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn_channel = types.InlineKeyboardButton("اضغط هنا للاشتراك في القناة 📢", url="https://t.me/TeamBacDZ")
+        btn_check = types.InlineKeyboardButton("🔄 التحقق من الاشتراك", callback_data="check_sub")
+        markup.add(btn_channel, btn_check)
+        
+        bot.reply_to(
+            message, 
+            "يسعدنا انضمامك إلينا!\n\nللاستمرار، يرجى الاشتراك في القناة الرسمية أولًا، ثم اضغط على زر التحقق من الاشتراك بالأسفل لتبدأ استخدام البوت 👇", 
+            reply_markup=markup
+        )
+        return
+
+    # إذا كان مشتركاً بالفعل، تظهر القائمة الرئيسية مباشرة
+    send_main_menu(chat_id)
 
 def keep_alive():
     t = Thread(target=run)

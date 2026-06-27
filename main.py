@@ -11,8 +11,8 @@ bot = telebot.TeleBot(BOT_TOKEN)
 # 2. معرف قناتك الإلزامية
 CHANNEL_ID = "@TeamBacDZ"
 
-# رابط صورة جديدة ومختلفة تماماً وسريعة جداً للاختبار
-WELCOME_IMAGE_URL = "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?q=80&w=600&auto=format&fit=crop"
+# الرابط المباشر الجديد والمضمون لصورتك الاحترافية (Team BAC Gestion)
+WELCOME_IMAGE_URL = "https://i.ibb.co/6R9SgY4b/team-bac-gestion.jpg"
 
 app = Flask('')
 
@@ -53,7 +53,7 @@ def handle_all_messages(message):
         )
         return
 
-    # ثانياً: القائمة بالأزرار والصورة المقترحة الجديدة
+    # ثانياً: القائمة بالأزرار والصورة الرسمية الخاصة بك
     markup = types.InlineKeyboardMarkup(row_width=1)
     
     btn_app = types.InlineKeyboardButton("🟢 ادخل للتطبيق", url="https://t.me/TeamBacDZ")
@@ -69,7 +69,7 @@ def handle_all_messages(message):
     )
     
     try:
-        # محاولة إرسال الصورة الجديدة مع النص والأزرار
+        # إرسال صورتك الرسمية بدقة عالية وسرعة فائقة
         bot.send_photo(message.chat.id, WELCOME_IMAGE_URL, caption=caption_text, reply_markup=markup)
     except Exception as e:
         print(f"Error sending photo: {e}")
